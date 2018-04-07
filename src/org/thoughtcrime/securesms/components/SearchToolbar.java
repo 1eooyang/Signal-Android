@@ -79,6 +79,9 @@ public class SearchToolbar extends LinearLayout {
     searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
       @Override
       public boolean onMenuItemActionExpand(MenuItem item) {
+        if (listener != null) {
+          listener.onSearchOpened();
+        }
         return true;
       }
 
@@ -120,7 +123,8 @@ public class SearchToolbar extends LinearLayout {
   private void hide() {
     if (getVisibility() == View.VISIBLE) {
 
-      if (listener != null) listener.onSearchReset();
+
+      if (listener != null) listener.onSearchClosed();
 
       if (Build.VERSION.SDK_INT >= 21) {
         Animator animator = ViewAnimationUtils.createCircularReveal(this, (int)x, (int)y, getWidth(), 0);
@@ -148,8 +152,9 @@ public class SearchToolbar extends LinearLayout {
   }
 
   public interface SearchListener {
+    void onSearchOpened();
     void onSearchTextChange(String text);
-    void onSearchReset();
+    void onSearchClosed();
   }
 
 }

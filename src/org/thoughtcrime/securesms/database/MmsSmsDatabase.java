@@ -178,6 +178,26 @@ public class MmsSmsDatabase extends Database {
     return -1;
   }
 
+  /**
+   * Retrieves the position of the message with the provided timestamp in the query results you'd
+   * get from calling {@link #getConversation(long)}.
+   *
+   * Note: This could give back incorrect results in the situation where multiple messages have the
+   * same received timestamp. However, because this was designed to determine where to scroll to,
+   * you'll still wind up in about the right spot.
+   */
+  public int getMessagePositionInConversation(long threadId, long receivedTimestamp) {
+    String order     = MmsSmsColumns.NORMALIZED_DATE_RECEIVED + " DESC";
+    String selection = MmsSmsColumns.THREAD_ID + " = " + threadId + " AND " + MmsSmsColumns.NORMALIZED_DATE_RECEIVED + " > " + receivedTimestamp;
+
+    try (Cursor cursor = queryTables(new String[]{ "COUNT(*)" }, selection, order, null)) {
+      if (cursor != null && cursor.moveToFirst()) {
+        return cursor.getInt(0);
+      }
+    }
+    return -1;
+  }
+
   private Cursor queryTables(String[] projection, String selection, String order, String limit) {
     String[] mmsProjection = {MmsDatabase.DATE_SENT + " AS " + MmsSmsColumns.NORMALIZED_DATE_SENT,
                               MmsDatabase.DATE_RECEIVED + " AS " + MmsSmsColumns.NORMALIZED_DATE_RECEIVED,

@@ -83,9 +83,11 @@ import java.util.Set;
 public class ConversationFragment extends Fragment
   implements LoaderManager.LoaderCallbacks<Cursor>
 {
-  private static final String TAG = ConversationFragment.class.getSimpleName();
+  private static final String TAG       = ConversationFragment.class.getSimpleName();
+  private static final String KEY_LIMIT = "limit";
 
-  private static final long   PARTIAL_CONVERSATION_LIMIT = 500L;
+  private static final int PARTIAL_CONVERSATION_LIMIT = 500;
+  private static final int STARTING_POSITION_BUFFER   = 100;
 
   private final ActionModeCallback actionModeCallback     = new ActionModeCallback();
   private final ItemClickListener  selectionClickListener = new ConversationFragmentItemClickListener();
@@ -95,6 +97,7 @@ public class ConversationFragment extends Fragment
   private Recipient                   recipient;
   private long                        threadId;
   private long                        lastSeen;
+  private int                         startingPosition;
   private boolean                     firstLoad;
   private ActionMode                  actionMode;
   private Locale                      locale;
@@ -130,7 +133,7 @@ public class ConversationFragment extends Fragment
     loadMoreView = inflater.inflate(R.layout.load_more_header, container, false);
     loadMoreView.setOnClickListener(v -> {
       Bundle args = new Bundle();
-      args.putLong("limit", 0);
+      args.putLong(KEY_LIMIT, 0);
       getLoaderManager().restartLoader(0, args, ConversationFragment.this);
     });
 
@@ -181,6 +184,7 @@ public class ConversationFragment extends Fragment
     this.recipient         = Recipient.from(getActivity(), getActivity().getIntent().getParcelableExtra(ConversationActivity.ADDRESS_EXTRA), true);
     this.threadId          = this.getActivity().getIntent().getLongExtra(ConversationActivity.THREAD_ID_EXTRA, -1);
     this.lastSeen          = this.getActivity().getIntent().getLongExtra(ConversationActivity.LAST_SEEN_EXTRA, -1);
+    this.startingPosition  = this.getActivity().getIntent().getIntExtra(ConversationActivity.STARTING_POSITION_EXTRA, -1);
     this.firstLoad         = true;
     this.unknownSenderView = new UnknownSenderView(getActivity(), recipient, threadId);
 
@@ -416,7 +420,10 @@ public class ConversationFragment extends Fragment
 
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    return new ConversationLoader(getActivity(), threadId, args.getLong("limit", PARTIAL_CONVERSATION_LIMIT), lastSeen);
+    int limit = Math.max(args.getInt(KEY_LIMIT, PARTIAL_CONVERSATION_LIMIT),
+                         startingPosition + STARTING_POSITION_BUFFER);
+
+    return new ConversationLoader(getActivity(), threadId, limit, lastSeen);
   }
 
   @Override
@@ -446,7 +453,11 @@ public class ConversationFragment extends Fragment
       int lastSeenPosition = getListAdapter().findLastSeenPosition(lastSeen);
 
       if (firstLoad) {
-        scrollToLastSeenPosition(lastSeenPosition);
+        if (startingPosition > 0) {
+          list.post(() -> list.getLayoutManager().scrollToPosition(startingPosition));
+        } else {
+          scrollToLastSeenPosition(lastSeenPosition);
+        }
         firstLoad = false;
       }
 

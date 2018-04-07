@@ -168,6 +168,10 @@ public class ShareActivity extends PassphraseRequiredActionBarActivity
 
     searchToolbar.setListener(new SearchToolbar.SearchListener() {
       @Override
+      public void onSearchOpened() {
+      }
+
+      @Override
       public void onSearchTextChange(String text) {
         if (contactsFragment != null) {
           contactsFragment.setQueryFilter(text);
@@ -175,7 +179,7 @@ public class ShareActivity extends PassphraseRequiredActionBarActivity
       }
 
       @Override
-      public void onSearchReset() {
+      public void onSearchClosed() {
         if (contactsFragment != null) {
           contactsFragment.resetQueryFilter();
         }
