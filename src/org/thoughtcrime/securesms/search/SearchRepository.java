@@ -85,7 +85,7 @@ public class SearchRepository {
       CursorList<ThreadRecord>  conversations = queryConversations(cleanQuery);
       CursorList<MessageResult> messages      = queryMessages(cleanQuery);
 
-      callback.onResult(new SearchResult(query, contacts, conversations, messages));
+      callback.onResult(new SearchResult(cleanQuery, contacts, conversations, messages));
     });
   }
 

@@ -54,7 +54,7 @@ public class SearchDatabase extends Database {
   private static final String MESSAGES_QUERY =
       "SELECT " +
         MmsSmsColumns.ADDRESS + ", " +
-        "snippet(" + SMS_FTS_TABLE_NAME + ", -1, '<b>', '</b>', '...', 7) AS " + SNIPPET + ", " +
+        "snippet(" + SMS_FTS_TABLE_NAME + ", -1, '', '', '...', 7) AS " + SNIPPET + ", " +
         SmsDatabase.DATE_RECEIVED + " AS " + MmsSmsColumns.NORMALIZED_DATE_RECEIVED + ", " +
         MmsSmsColumns.THREAD_ID + ", " +
         "bm25(" + SMS_FTS_TABLE_NAME + ") AS " + RANK + " " +
@@ -64,7 +64,7 @@ public class SearchDatabase extends Database {
       "UNION ALL " +
       "SELECT " +
         MmsSmsColumns.ADDRESS + ", " +
-        "snippet(" + MMS_FTS_TABLE_NAME + ", -1, '<b>', '</b>', '...', 7) AS " + SNIPPET + ", " +
+        "snippet(" + MMS_FTS_TABLE_NAME + ", -1, '', '', '...', 7) AS " + SNIPPET + ", " +
         MmsDatabase.DATE_RECEIVED + " AS " + MmsSmsColumns.NORMALIZED_DATE_RECEIVED + ", " +
         MmsSmsColumns.THREAD_ID + ", " +
         "bm25(" + MMS_FTS_TABLE_NAME + ") AS " + RANK + " " +

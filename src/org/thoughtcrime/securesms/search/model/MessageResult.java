@@ -10,13 +10,16 @@ import org.thoughtcrime.securesms.recipients.Recipient;
 public class MessageResult {
 
   public final Recipient recipient;
-  public final String    body;
+  public final String    bodySnippet;
   public final long      threadId;
   public final long      receivedTimestampMs;
 
-  public MessageResult(@NonNull Recipient recipient, @NonNull String body, long threadId, long receivedTimestampMs) {
+  public MessageResult(@NonNull Recipient recipient,
+                       @NonNull String bodySnippet,
+                       long threadId,
+                       long receivedTimestampMs) {
     this.recipient           = recipient;
-    this.body                = body;
+    this.bodySnippet         = bodySnippet;
     this.threadId            = threadId;
     this.receivedTimestampMs = receivedTimestampMs;
   }
