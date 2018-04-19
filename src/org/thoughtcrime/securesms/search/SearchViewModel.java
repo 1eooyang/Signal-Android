@@ -7,6 +7,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.support.annotation.NonNull;
 
 import org.thoughtcrime.securesms.search.model.SearchResult;
+import org.thoughtcrime.securesms.util.Debouncer;
 
 /**
  * A {@link ViewModel} for handling all the business logic and interactions that take place inside
@@ -20,12 +21,14 @@ class SearchViewModel extends ViewModel {
 
   private final ClosingLiveData  searchResult;
   private final SearchRepository searchRepository;
+  private final Debouncer        debouncer;
 
   private String lastQuery;
 
   SearchViewModel(@NonNull SearchRepository searchRepository) {
     this.searchResult     = new ClosingLiveData();
     this.searchRepository = searchRepository;
+    this.debouncer        = new Debouncer(500);
   }
 
   LiveData<SearchResult> getSearchResult() {
@@ -33,9 +36,8 @@ class SearchViewModel extends ViewModel {
   }
 
   void updateQuery(String query) {
-    // TODO: Throttling?
     lastQuery = query;
-    searchRepository.query(query, searchResult::postValue);
+    debouncer.publish(() -> searchRepository.query(query, searchResult::postValue));
   }
 
   @NonNull
