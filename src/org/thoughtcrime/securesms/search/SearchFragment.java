@@ -65,7 +65,8 @@ public class SearchFragment extends Fragment implements SearchListAdapter.EventL
 
     this.locale = (Locale) getArguments().getSerializable(EXTRA_LOCALE);
 
-    // Note: We essentially construct the dependency graph here. We can move this out in the future.
+    // Note: We essentially construct the dependency graph here. We can move this out in the future
+    //       if we ever start using a DI framework.
     SearchRepository searchRepository = new SearchRepository(getContext(),
                                                              DatabaseFactory.getSearchDatabase(getContext()),
                                                              DatabaseFactory.getContactsDatabase(getContext()),
@@ -150,7 +151,6 @@ public class SearchFragment extends Fragment implements SearchListAdapter.EventL
       protected Integer doInBackground(Void... voids) {
         int  startingPosition = DatabaseFactory.getMmsSmsDatabase(getContext()).getMessagePositionInConversation(message.threadId, message.receivedTimestampMs);
         startingPosition = Math.max(0, startingPosition);
-        Log.e("SPIDERMAN", "startingPosition: " + startingPosition);
 
         return startingPosition;
       }
@@ -170,7 +170,6 @@ public class SearchFragment extends Fragment implements SearchListAdapter.EventL
   }
 
   public void updateSearchQuery(@NonNull String query) {
-    Log.e(TAG, "query: " + query);
     if (viewModel != null) {
       viewModel.updateQuery(query);
     } else {

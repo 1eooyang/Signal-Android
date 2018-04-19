@@ -140,7 +140,7 @@ public class ConversationListItem extends RelativeLayout
 
     this.recipient.addListener(this);
     if (highlightSubstring != null) {
-      this.fromView.setText(getHighlightedSpan(recipient.getName(), highlightSubstring));
+      this.fromView.setText(getHighlightedSpan(locale, recipient.getName(), highlightSubstring));
     } else {
       this.fromView.setText(recipient, unreadCount == 0);
     }
@@ -168,14 +168,17 @@ public class ConversationListItem extends RelativeLayout
     this.contactPhotoImage.setAvatar(glideRequests, recipient, true);
   }
 
-  public void bind(@NonNull Recipient contact, @NonNull GlideRequests glideRequests, @Nullable String highlightSubstring) {
+  public void bind(@NonNull  Recipient     contact,
+                   @NonNull  GlideRequests glideRequests,
+                   @NonNull  Locale        locale,
+                   @Nullable String        highlightSubstring) {
     this.selectedThreads = Collections.emptySet();
     this.recipient       = contact;
     this.glideRequests   = glideRequests;
 
     this.recipient.addListener(this);
 
-    fromView.setText(getHighlightedSpan(recipient.getName(), highlightSubstring));
+    fromView.setText(getHighlightedSpan(locale, recipient.getName(), highlightSubstring));
     subjectView.setText(contact.getAddress().toPhoneString());
     dateView.setText("");
     archivedView.setVisibility(GONE);
@@ -200,7 +203,7 @@ public class ConversationListItem extends RelativeLayout
     this.recipient.addListener(this);
 
     fromView.setText(recipient, true);
-    subjectView.setText(getHighlightedSpan(messageResult.bodySnippet, highlightSubstring));
+    subjectView.setText(getHighlightedSpan(locale, messageResult.bodySnippet, highlightSubstring));
     dateView.setText(DateUtils.getBriefRelativeTimeSpanString(getContext(), locale, messageResult.receivedTimestampMs));
     archivedView.setVisibility(GONE);
     unreadIndicator.setVisibility(GONE);
@@ -310,13 +313,15 @@ public class ConversationListItem extends RelativeLayout
     unreadIndicator.setVisibility(View.VISIBLE);
   }
 
-  private Spanned getHighlightedSpan(@Nullable String value, @Nullable String highlight) {
+  private Spanned getHighlightedSpan(@NonNull Locale locale,
+                                     @Nullable String value,
+                                     @Nullable String highlight)
+  {
     if (value == null || highlight == null) {
       return new SpannableString(value);
     }
 
-    // TODO: Locale
-    int startPosition = value.toLowerCase().indexOf(highlight.toLowerCase());
+    int startPosition = value.toLowerCase(locale).indexOf(highlight.toLowerCase());
     int endPosition   = startPosition + highlight.length();
     if (startPosition < 0) {
       return new SpannableString(value);

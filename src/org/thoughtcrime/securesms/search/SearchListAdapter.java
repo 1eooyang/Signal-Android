@@ -59,7 +59,7 @@ class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter.Search
 
     Recipient contactResult = getContactResult(position);
     if (contactResult != null) {
-      holder.bind(contactResult, glideRequests, eventListener, searchResult.getQuery());
+      holder.bind(contactResult, glideRequests, eventListener, locale, searchResult.getQuery());
       return;
     }
 
@@ -166,9 +166,10 @@ class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter.Search
     void bind(@NonNull  Recipient     contactResult,
               @NonNull  GlideRequests glideRequests,
               @NonNull  EventListener eventListener,
+              @NonNull  Locale        locale,
               @Nullable String        query)
     {
-      root.bind(contactResult, glideRequests, query);
+      root.bind(contactResult, glideRequests, locale, query);
       root.setOnClickListener(view -> eventListener.onContactClicked(contactResult));
     }
 

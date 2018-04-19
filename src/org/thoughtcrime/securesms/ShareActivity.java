@@ -168,10 +168,6 @@ public class ShareActivity extends PassphraseRequiredActionBarActivity
 
     searchToolbar.setListener(new SearchToolbar.SearchListener() {
       @Override
-      public void onSearchOpened() {
-      }
-
-      @Override
       public void onSearchTextChange(String text) {
         if (contactsFragment != null) {
           contactsFragment.setQueryFilter(text);

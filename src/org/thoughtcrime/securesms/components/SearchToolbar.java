@@ -79,9 +79,6 @@ public class SearchToolbar extends LinearLayout {
     searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
       @Override
       public boolean onMenuItemActionExpand(MenuItem item) {
-        if (listener != null) {
-          listener.onSearchOpened();
-        }
         return true;
       }
 
@@ -152,7 +149,6 @@ public class SearchToolbar extends LinearLayout {
   }
 
   public interface SearchListener {
-    void onSearchOpened();
     void onSearchTextChange(String text);
     void onSearchClosed();
   }

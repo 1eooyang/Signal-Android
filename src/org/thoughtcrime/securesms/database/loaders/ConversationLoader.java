@@ -8,15 +8,13 @@ import org.thoughtcrime.securesms.util.AbstractCursorLoader;
 import org.whispersystems.libsignal.util.Pair;
 
 public class ConversationLoader extends AbstractCursorLoader {
-  public static final int NO_LIMIT = -1;
-
   private final long    threadId;
-  private       long    offset;
-  private       long    limit;
+  private       int     offset;
+  private       int     limit;
   private       long    lastSeen;
   private       boolean hasSent;
 
-  public ConversationLoader(Context context, long threadId, long offset, long limit, long lastSeen) {
+  public ConversationLoader(Context context, long threadId, int offset, int limit, long lastSeen) {
     super(context);
     this.threadId = threadId;
     this.offset   = offset;
@@ -34,7 +32,7 @@ public class ConversationLoader extends AbstractCursorLoader {
   }
 
   public int getOffset() {
-    return (int) offset;
+    return offset;
   }
 
   public long getLastSeen() {

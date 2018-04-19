@@ -129,16 +129,12 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
 
     searchToolbar.setListener(new SearchToolbar.SearchListener() {
       @Override
-      public void onSearchOpened() {
-      }
-
-      @Override
       public void onSearchTextChange(String text) {
         String trimmed = text.trim();
 
         if (trimmed.length() > 0) {
           if (searchFragment == null) {
-            searchFragment = SearchFragment.newInstance();
+            searchFragment = SearchFragment.newInstance(dynamicLanguage.getCurrentLocale());
             getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, searchFragment, null)
                 .commit();
