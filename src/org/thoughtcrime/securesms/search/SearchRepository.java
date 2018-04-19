@@ -15,6 +15,7 @@ import org.thoughtcrime.securesms.contacts.ContactAccessor;
 import org.thoughtcrime.securesms.contacts.ContactsDatabase;
 import org.thoughtcrime.securesms.database.Address;
 import org.thoughtcrime.securesms.database.CursorList;
+import org.thoughtcrime.securesms.database.MmsSmsColumns;
 import org.thoughtcrime.securesms.database.SearchDatabase;
 import org.thoughtcrime.securesms.database.ThreadDatabase;
 import org.thoughtcrime.securesms.database.model.ThreadRecord;
@@ -31,7 +32,7 @@ import java.util.concurrent.Executor;
 /**
  * Manages data retrieval for search.
  */
-public class SearchRepository {
+class SearchRepository {
 
   private static final Set<Character> BANNED_CHARACTERS = new HashSet<>();
   static {
@@ -57,12 +58,12 @@ public class SearchRepository {
   private final ContactAccessor  contactAccessor;
   private final Executor         executor;
 
-  public SearchRepository(@NonNull Context          context,
-                          @NonNull SearchDatabase   searchDatabase,
-                          @NonNull ContactsDatabase contactsDatabase,
-                          @NonNull ThreadDatabase   threadDatabase,
-                          @NonNull ContactAccessor  contactAccessor,
-                          @NonNull Executor         executor)
+  SearchRepository(@NonNull Context          context,
+                   @NonNull SearchDatabase   searchDatabase,
+                   @NonNull ContactsDatabase contactsDatabase,
+                   @NonNull ThreadDatabase   threadDatabase,
+                   @NonNull ContactAccessor  contactAccessor,
+                   @NonNull Executor         executor)
   {
     this.context          = context.getApplicationContext();
     this.searchDatabase   = searchDatabase;
@@ -72,8 +73,7 @@ public class SearchRepository {
     this.executor         = executor;
   }
 
-  @NonNull
-  public void query(@NonNull String query, @NonNull Callback callback) {
+  void query(@NonNull String query, @NonNull Callback callback) {
     if (TextUtils.isEmpty(query)) {
       callback.onResult(SearchResult.EMPTY);
       return;
@@ -137,7 +137,7 @@ public class SearchRepository {
 
     private final Context context;
 
-    public RecipientModelBuilder(@NonNull Context context) {
+    RecipientModelBuilder(@NonNull Context context) {
       this.context = context;
     }
 
@@ -152,7 +152,7 @@ public class SearchRepository {
 
     private final ThreadDatabase threadDatabase;
 
-    public ThreadModelBuilder(@NonNull ThreadDatabase threadDatabase) {
+    ThreadModelBuilder(@NonNull ThreadDatabase threadDatabase) {
       this.threadDatabase = threadDatabase;
     }
 
@@ -166,7 +166,7 @@ public class SearchRepository {
 
     private final Context context;
 
-    public MessageModelBuilder(@NonNull Context context) {
+    MessageModelBuilder(@NonNull Context context) {
       this.context = context;
     }
 
@@ -174,9 +174,9 @@ public class SearchRepository {
     public MessageResult build(@NonNull Cursor cursor) {
       Address   address    = Address.fromSerialized(cursor.getString(0));
       Recipient recipient  = Recipient.from(context, address, false);
-      String    body       = cursor.getString(1);
-      long      receivedMs = cursor.getLong(2);
-      long      threadId   = cursor.getLong(3);
+      String    body       = cursor.getString(cursor.getColumnIndexOrThrow(SearchDatabase.SNIPPET));
+      long      receivedMs = cursor.getLong(cursor.getColumnIndexOrThrow(MmsSmsColumns.NORMALIZED_DATE_RECEIVED));
+      long      threadId   = cursor.getLong(cursor.getColumnIndexOrThrow(MmsSmsColumns.THREAD_ID));
 
       return new MessageResult(recipient, body, threadId, receivedMs);
     }

@@ -12,7 +12,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +30,7 @@ import org.thoughtcrime.securesms.search.model.MessageResult;
 import org.thoughtcrime.securesms.search.model.SearchResult;
 import org.thoughtcrime.securesms.util.StickyHeaderDecoration;
 
+import java.util.Locale;
 import java.util.concurrent.Executors;
 
 /**
@@ -38,7 +38,8 @@ import java.util.concurrent.Executors;
  */
 public class SearchFragment extends Fragment implements SearchListAdapter.EventListener {
 
-  public static final String TAG = "SearchFragment";
+  public static final String TAG          = "SearchFragment";
+  public static final String EXTRA_LOCALE = "locale";
 
   private TextView     noResultsView;
   private RecyclerView listView;
@@ -46,14 +47,23 @@ public class SearchFragment extends Fragment implements SearchListAdapter.EventL
   private SearchViewModel   viewModel;
   private SearchListAdapter listAdapter;
   private String            pendingQuery;
+  private Locale            locale;
 
-  public static SearchFragment newInstance() {
-    return new SearchFragment();
+  public static SearchFragment newInstance(@NonNull Locale locale) {
+    Bundle args = new Bundle();
+    args.putSerializable(EXTRA_LOCALE, locale);
+
+    SearchFragment fragment = new SearchFragment();
+    fragment.setArguments(args);
+
+    return fragment;
   }
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    this.locale = (Locale) getArguments().getSerializable(EXTRA_LOCALE);
 
     // Note: We essentially construct the dependency graph here. We can move this out in the future.
     SearchRepository searchRepository = new SearchRepository(getContext(),
@@ -81,7 +91,7 @@ public class SearchFragment extends Fragment implements SearchListAdapter.EventL
     noResultsView = view.findViewById(R.id.search_no_results);
     listView      = view.findViewById(R.id.search_list);
 
-    listAdapter = new SearchListAdapter(GlideApp.with(this), this);
+    listAdapter = new SearchListAdapter(GlideApp.with(this), this, locale);
     listView.setAdapter(listAdapter);
     listView.setLayoutManager(new LinearLayoutManager(getContext()));
     listView.addItemDecoration(new StickyHeaderDecoration(listAdapter, false, false));

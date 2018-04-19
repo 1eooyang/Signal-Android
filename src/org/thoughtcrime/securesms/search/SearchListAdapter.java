@@ -20,22 +20,26 @@ import org.thoughtcrime.securesms.util.StickyHeaderDecoration;
 import java.util.Collections;
 import java.util.Locale;
 
-public class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter.SearchResultViewHolder>
-                               implements StickyHeaderDecoration.StickyHeaderAdapter<SearchListAdapter.HeaderViewHolder> {
-
+class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter.SearchResultViewHolder>
+                        implements StickyHeaderDecoration.StickyHeaderAdapter<SearchListAdapter.HeaderViewHolder>
+{
   private static final int TYPE_CONVERSATIONS = 1;
   private static final int TYPE_CONTACTS      = 2;
   private static final int TYPE_MESSAGES      = 3;
 
   private final GlideRequests glideRequests;
   private final EventListener eventListener;
+  private final Locale        locale;
 
   @NonNull
   private SearchResult searchResult = SearchResult.EMPTY;
 
-  public SearchListAdapter(@NonNull GlideRequests glideRequests, @NonNull EventListener eventListener) {
+  SearchListAdapter(@NonNull GlideRequests glideRequests,
+                    @NonNull EventListener eventListener,
+                    @NonNull Locale        locale) {
     this.glideRequests = glideRequests;
     this.eventListener = eventListener;
+    this.locale        = locale;
   }
 
   @NonNull
@@ -47,21 +51,21 @@ public class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter
 
   @Override
   public void onBindViewHolder(@NonNull SearchResultViewHolder holder, int position) {
-    // TODO: Make nicer -- maybe move all position stuff in here?
-
     ThreadRecord conversationResult = getConversationResult(position);
     if (conversationResult != null) {
-      holder.bind(conversationResult, glideRequests, eventListener, searchResult.getQuery());
+      holder.bind(conversationResult, glideRequests, eventListener, locale, searchResult.getQuery());
+      return;
     }
 
     Recipient contactResult = getContactResult(position);
     if (contactResult != null) {
       holder.bind(contactResult, glideRequests, eventListener, searchResult.getQuery());
+      return;
     }
 
     MessageResult messageResult = getMessageResult(position);
     if (messageResult != null) {
-      holder.bind(messageResult, glideRequests, eventListener, searchResult.getQuery());
+      holder.bind(messageResult, glideRequests, eventListener, locale, searchResult.getQuery());
     }
   }
 
@@ -97,7 +101,7 @@ public class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter
     viewHolder.bind((int) getHeaderId(position));
   }
 
-  public void updateResults(@NonNull SearchResult result) {
+  void updateResults(@NonNull SearchResult result) {
     this.searchResult = result;
     notifyDataSetChanged();
   }
@@ -140,11 +144,11 @@ public class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter
     void onMessageClicked(@NonNull MessageResult message);
   }
 
-  public static class SearchResultViewHolder extends RecyclerView.ViewHolder {
+  static class SearchResultViewHolder extends RecyclerView.ViewHolder {
 
     private final ConversationListItem root;
 
-    public SearchResultViewHolder(View itemView) {
+    SearchResultViewHolder(View itemView) {
       super(itemView);
       root = (ConversationListItem) itemView;
     }
@@ -152,10 +156,10 @@ public class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter
     void bind(@NonNull  ThreadRecord  conversationResult,
               @NonNull  GlideRequests glideRequests,
               @NonNull  EventListener eventListener,
-              @Nullable String       query)
+              @NonNull  Locale        locale,
+              @Nullable String        query)
     {
-      // TODO: Locale
-      root.bind(conversationResult, glideRequests, Locale.getDefault(), Collections.emptySet(), false, query);
+      root.bind(conversationResult, glideRequests, locale, Collections.emptySet(), false, query);
       root.setOnClickListener(view -> eventListener.onConversationClicked(conversationResult));
     }
 
@@ -171,10 +175,10 @@ public class SearchListAdapter extends    RecyclerView.Adapter<SearchListAdapter
     void bind(@NonNull  MessageResult messageResult,
               @NonNull  GlideRequests glideRequests,
               @NonNull  EventListener eventListener,
-              @Nullable String       query)
+              @NonNull  Locale        locale,
+              @Nullable String        query)
     {
-      // TODO: Locale
-      root.bind(messageResult, glideRequests, Locale.getDefault(), query);
+      root.bind(messageResult, glideRequests, locale, query);
       root.setOnClickListener(view -> eventListener.onMessageClicked(messageResult));
     }
 
