@@ -61,11 +61,8 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
   private final DynamicTheme    dynamicTheme    = new DynamicNoActionBarTheme();
   private final DynamicLanguage dynamicLanguage = new DynamicLanguage();
 
-  private ConversationListFragment conversationListFragment;
-  private SearchFragment           searchFragment;
   private SearchToolbar            searchToolbar;
   private ImageView                searchAction;
-  private ViewGroup                fragmentContainer;
 
   @Override
   protected void onPreCreate() {
@@ -80,11 +77,10 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     Toolbar toolbar = findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    searchToolbar            = findViewById(R.id.search_toolbar);
-    searchAction             = findViewById(R.id.search_action);
-    fragmentContainer        = findViewById(R.id.fragment_container);
-    conversationListFragment = initFragment(R.id.fragment_container, new ConversationListFragment(), dynamicLanguage.getCurrentLocale());
+    searchToolbar = findViewById(R.id.search_toolbar);
+    searchAction  = findViewById(R.id.search_action);
 
+    initFragment(R.id.fragment_container, new ConversationListFragment(), dynamicLanguage.getCurrentLocale());
     initializeSearchListener();
 
     RatingManager.showRatingDialogIfNecessary(this);
@@ -130,31 +126,34 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     searchToolbar.setListener(new SearchToolbar.SearchListener() {
       @Override
       public void onSearchTextChange(String text) {
+        SearchFragment searchFragment = getSearchFragment();
+
         String trimmed = text.trim();
 
         if (trimmed.length() > 0) {
           if (searchFragment == null) {
             searchFragment = SearchFragment.newInstance(dynamicLanguage.getCurrentLocale());
             getSupportFragmentManager().beginTransaction()
-                                       .add(R.id.fragment_container, searchFragment, null)
+                                       .add(R.id.fragment_container, searchFragment, SearchFragment.TAG)
                                        .commit();
           }
+
           searchFragment.updateSearchQuery(trimmed);
         } else if (searchFragment != null) {
           getSupportFragmentManager().beginTransaction()
                                      .remove(searchFragment)
                                      .commit();
-          searchFragment = null;
         }
       }
 
       @Override
       public void onSearchClosed() {
+        SearchFragment searchFragment = getSearchFragment();
+
         if (searchFragment != null) {
           getSupportFragmentManager().beginTransaction()
                                      .remove(searchFragment)
                                      .commit();
-          searchFragment = null;
         }
       }
     });
@@ -255,5 +254,9 @@ public class ConversationListActivity extends PassphraseRequiredActionBarActivit
     } catch (ActivityNotFoundException e) {
       Toast.makeText(this, R.string.ConversationListActivity_there_is_no_browser_installed_on_your_device, Toast.LENGTH_LONG).show();
     }
+  }
+
+  private SearchFragment getSearchFragment() {
+    return (SearchFragment) getSupportFragmentManager().findFragmentByTag(SearchFragment.TAG);
   }
 }

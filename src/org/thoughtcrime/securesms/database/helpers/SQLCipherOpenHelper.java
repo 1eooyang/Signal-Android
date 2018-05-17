@@ -46,9 +46,9 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
   private static final int NO_MORE_IMAGE_THUMBNAILS_VERSION = 5;
   private static final int ATTACHMENT_DIMENSIONS            = 6;
   private static final int QUOTED_REPLIES                   = 7;
-  private static final int FULL_TEXT_SEARCH                 = 8;
+  private static final int FULL_TEXT_SEARCH                 = 9;
 
-  private static final int    DATABASE_VERSION = 8;
+  private static final int    DATABASE_VERSION = 9;
   private static final String DATABASE_NAME    = "signal.db";
 
   private final Context        context;
@@ -192,13 +192,13 @@ public class SQLCipherOpenHelper extends SQLiteOpenHelper {
         long start = SystemClock.elapsedRealtime();
 
         db.execSQL("INSERT INTO " + SearchDatabase.SMS_FTS_TABLE_NAME + " (rowid, " + SearchDatabase.BODY + ") " +
-            "SELECT " + SmsDatabase.ID + " , " + SmsDatabase.BODY + " FROM " + SmsDatabase.TABLE_NAME);
+                   "SELECT " + SmsDatabase.ID + " , " + SmsDatabase.BODY + " FROM " + SmsDatabase.TABLE_NAME);
 
         long smsFinished = SystemClock.elapsedRealtime();
         Log.i(TAG, "Indexing SMS completed in " + (smsFinished - start) + " ms");
 
         db.execSQL("INSERT INTO " + SearchDatabase.MMS_FTS_TABLE_NAME + " (rowid, " + SearchDatabase.BODY + ") " +
-            "SELECT " + MmsDatabase.ID + " , " + MmsDatabase.BODY + " FROM " + MmsDatabase.TABLE_NAME);
+                   "SELECT " + MmsDatabase.ID + " , " + MmsDatabase.BODY + " FROM " + MmsDatabase.TABLE_NAME);
 
         long mmsFinished = SystemClock.elapsedRealtime();
         Log.i(TAG, "Indexing MMS completed in " + (mmsFinished - smsFinished) + " ms");
