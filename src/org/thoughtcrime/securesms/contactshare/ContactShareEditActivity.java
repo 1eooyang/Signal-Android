@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -29,19 +30,19 @@ import static org.thoughtcrime.securesms.contactshare.ContactShareEditViewModel.
 
 public class ContactShareEditActivity extends PassphraseRequiredActionBarActivity {
 
-  public  static final String KEY_CONTACTS    = "contacts";
-  private static final String KEY_CONTACT_IDS = "ids";
+  public  static final String KEY_CONTACTS     = "contacts";
+  private static final String KEY_CONTACT_URIS = "contact_uris";
 
   private final DynamicTheme    dynamicTheme    = new DynamicTheme();
   private final DynamicLanguage dynamicLanguage = new DynamicLanguage();
 
   private ContactShareEditViewModel viewModel;
 
-  public static Intent getIntent(@NonNull Context context, @NonNull List<Long> contactIds) {
-    ArrayList<String> serializedIds = new ArrayList<>(Stream.of(contactIds).map(String::valueOf).toList());
+  public static Intent getIntent(@NonNull Context context, @NonNull List<Uri> contactUris) {
+    ArrayList<Uri> contactUriList = new ArrayList<>(contactUris);
 
     Intent intent = new Intent(context, ContactShareEditActivity.class);
-    intent.putStringArrayListExtra(KEY_CONTACT_IDS, serializedIds);
+    intent.putParcelableArrayListExtra(KEY_CONTACT_URIS, contactUriList);
     return intent;
   }
 
@@ -59,12 +60,10 @@ public class ContactShareEditActivity extends PassphraseRequiredActionBarActivit
       throw new IllegalStateException("You must supply extras to this activity. Please use the #getIntent() method.");
     }
 
-    List<String> serializedIds = getIntent().getStringArrayListExtra(KEY_CONTACT_IDS);
-    if (serializedIds == null) {
-      throw new IllegalStateException("You must supply contact ID's to this activity. Please use the #getIntent() method.");
+    List<Uri> contactUris = getIntent().getParcelableArrayListExtra(KEY_CONTACT_URIS);
+    if (contactUris == null) {
+      throw new IllegalStateException("You must supply contact Uri's to this activity. Please use the #getIntent() method.");
     }
-
-    List<Long> contactIds = Stream.of(serializedIds).map(Long::parseLong).toList();
 
     View sendButton = findViewById(R.id.contact_share_edit_send);
     sendButton.setOnClickListener(v -> onSendClicked(viewModel.getFinalizedContacts()));
@@ -80,7 +79,7 @@ public class ContactShareEditActivity extends PassphraseRequiredActionBarActivit
                                                                 AsyncTask.THREAD_POOL_EXECUTOR,
                                                                 DatabaseFactory.getContactsDatabase(this));
 
-    viewModel = ViewModelProviders.of(this, new Factory(contactIds, contactRepository)).get(ContactShareEditViewModel.class);
+    viewModel = ViewModelProviders.of(this, new Factory(contactUris, contactRepository)).get(ContactShareEditViewModel.class);
     viewModel.getContacts().observe(this, contacts -> {
       contactAdapter.setContacts(contacts);
       contactList.post(() -> contactList.scrollToPosition(0));
